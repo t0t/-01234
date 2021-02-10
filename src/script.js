@@ -13,13 +13,11 @@ import * as dat from "dat.gui"
  */
 const gui = new dat.GUI({closed:true})
 gui.hide()
+
 /**
  * Cursor
  */
-const cursor = {
-    x: 0,
-    y: 0
-}
+const cursor = { x: 0, y: 0 }
 window.addEventListener("mousemove", (event) => {
     cursor.x = event.clientX / sizes.width - 0.5
     cursor.y = - (event.clientY / sizes.height - 0.5)
@@ -34,11 +32,10 @@ const canvas = document.querySelector('canvas.webgl')
 // Scene
 const scene = new THREE.Scene()
 scene.background = new THREE.Color( 0xf3f3f3 )
+
 //Axes helper
 const axesHelper = new THREE.AxesHelper()
 scene.add(axesHelper)
-
-
 
 /**
  * Particles
@@ -51,29 +48,41 @@ const particlesMaterial = new THREE.PointsMaterial({
     sizeAttenuation: true,
     color: "black"
 })
+
 // Points
 const particles = new THREE.Points(particlesGeometry, particlesMaterial)
 scene.add(particles)
+
 /**
- * Object
+ * Objects
  */
-const geometry = new THREE.BoxGeometry(1,1,1)
 const material = new THREE.MeshBasicMaterial({
-    color: 0x000000,
+    color: 0xff0000,
     wireframe: true
  })
 
-const mesh = new THREE.Mesh(geometry, material)
-scene.add(mesh)
+const box = new THREE.BoxGeometry(1,1,1)
 
+const sphere = new THREE.Mesh(
+    new THREE.SphereBufferGeometry(0.5,16,16),
+    material
+)
+const mesh = new THREE.Mesh(
+    box, 
+    material
+)
+const torus = new THREE.Mesh(
+    new THREE.TorusBufferGeometry(0.5,0.2,16,32),
+    material
+)
+ 
 const gltfLoader = new GLTFLoader()
 gltfLoader.load("/models/scene.glb",
-    (glb) => {
-        console.log(glb.scene.children[5].children)
-        scene.add(glb.scene)
-    }
-)
+(glb) => {
+    scene.add(glb.scene)
+})
 
+scene.add(sphere, mesh, torus)
 
 /**
  * Export
@@ -82,15 +91,10 @@ gltfLoader.load("/models/scene.glb",
 // const blob = new Blob([buffer], { type: exportSTL.mimeType });
 // saveAs(blob, 'cube.stl');
 
-
-
-
 /**
  * GUI Debug
  */
-gui.add(mesh.position, "x")
-.min(-3).max(3).step(0.01)
-.name("Posicion X")
+gui.add(mesh.position, "x").min(-3).max(3).step(0.01).name("Posicion X")
 gui.add(mesh, "visible")
 
 /**
@@ -123,25 +127,18 @@ window.addEventListener('dblclick', () => {
     // Webkit para safari...
     const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement
 
-    if(!fullscreenElement)
-    {
-        if(canvas.requestFullscreen)
-        {
+    if(!fullscreenElement){
+        if(canvas.requestFullscreen){
             canvas.requestFullscreen()
         }
-        else if(canvas.webkitRequestFullscreen)
-        {
+        else if(canvas.webkitRequestFullscreen){
             canvas.webkitRequestFullscreen()
         }
-    }
-    else
-    {
-        if(document.exitFullscreen)
-        {
+    } else {
+        if(document.exitFullscreen){
             document.exitFullscreen()
         }
-        else if(document.webkitExitFullscreen)
-        {
+        else if(document.webkitExitFullscreen){
             document.webkitExitFullscreen()
         }
     }
